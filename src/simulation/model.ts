@@ -25,6 +25,13 @@ export type SimulationResult = {
   profile: CoastProfile
 }
 
+export type ImpactLevel = {
+  key: "none" | "low" | "medium" | "severe"
+  label: string
+  shortLabel: string
+  description: string
+}
+
 export const coastProfiles: Record<CoastCondition, CoastProfile> = {
   steep: {
     label: "陡岸",
@@ -66,6 +73,24 @@ export function getWaterRiseProgress(progress: number): number {
 
 export function hasOvertopped(waterLevel: number, seawallHeight: number): boolean {
   return waterLevel - seawallHeight >= OVERTOP_CLEARANCE
+}
+
+export function getImpactLevel(
+  seaLevelRise: number,
+  waterLevel: number,
+  seawallHeight: number,
+  overtopped: boolean,
+): ImpactLevel {
+  if (overtopped) {
+    return { key: "severe", label: "严重影响", shortLabel: "严重", description: "海水已经越过海堤" }
+  }
+  if (seaLevelRise < 0.1) {
+    return { key: "none", label: "暂无明显影响", shortLabel: "暂无", description: "海水位变化还不明显" }
+  }
+  if (seaLevelRise >= 0.35 || seawallHeight - waterLevel <= 0.15) {
+    return { key: "medium", label: "中度影响", shortLabel: "中度", description: "水位已经接近海堤" }
+  }
+  return { key: "low", label: "轻度影响", shortLabel: "轻度", description: "海水位出现小幅抬升" }
 }
 
 export function calculateSimulation(settings: SimulationSettings): SimulationResult {

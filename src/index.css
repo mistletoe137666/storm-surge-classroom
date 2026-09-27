@@ -7,7 +7,7 @@
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; min-height: 100dvh; background: #edf3f5; }
+body { margin: 0; min-width: 0; min-height: 100dvh; background: #edf3f5; }
 button, input { font: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
 
@@ -30,11 +30,16 @@ h2 { margin-bottom: 0; color: #18394d; font-size: 18px; line-height: 1.25; lette
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #2eb1a2; box-shadow: 0 0 0 3px rgba(46, 177, 162, 0.12); }
 .storm-scene-wrap { padding: 0 10px; }
 .storm-scene { display: block; width: 100%; height: auto; overflow: hidden; border-radius: 12px; background: #183e55; }
-.wind-lines { animation: drift 3.6s linear infinite; transform-origin: center; }
-.cloud-a { animation: cloud-shift 9s ease-in-out infinite alternate; }
-.cloud-b { animation: cloud-shift 12s ease-in-out infinite alternate-reverse; }
+.wind-lines { opacity: 0.88; animation: wind-sweep 2s linear infinite; animation-play-state: paused; transform-origin: center; }
+.wind-lines-secondary { opacity: 0.68; }
+.wave-flow { animation: wave-push 2.5s linear infinite; animation-play-state: paused; transform-origin: center; }
+.cloud-a { animation: cloud-shift 9s ease-in-out infinite alternate; animation-play-state: paused; }
+.cloud-b { animation: cloud-shift 12s ease-in-out infinite alternate-reverse; animation-play-state: paused; }
+.storm-scene.is-playing .wind-lines, .storm-scene.is-playing .wave-flow, .storm-scene.is-playing .cloud-a, .storm-scene.is-playing .cloud-b { animation-play-state: running; }
 .scene-caption { display: flex; justify-content: space-between; padding: 7px 5px 0; color: #738893; font-size: 10px; font-weight: 600; }
-.scene-stage-callout { animation: callout-in 420ms ease-out both; }
+.scene-stage-callout, .impact-panel { animation: callout-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.overtop-label { animation: overtop-pop 520ms cubic-bezier(0.16, 1, 0.3, 1) both; transform-box: fill-box; transform-origin: center; }
+.overtop-pulse { animation: overtop-pulse 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
 
 .stage-timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 17px 16px 14px; }
 .stage-item { position: relative; display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 6px; color: #82939a; font-size: 10px; font-weight: 600; text-align: center; }
@@ -57,6 +62,10 @@ h2 { margin-bottom: 0; color: #18394d; font-size: 18px; line-height: 1.25; lette
 .result-grid strong { color: #254c60; font-size: 14px; line-height: 1.1; white-space: nowrap; }
 .result-grid .is-warning strong { color: #be691d; font-size: 12px; }
 .result-grid .is-safe strong { color: #287b72; font-size: 12px; }
+.result-grid .impact-none strong { color: #607a85; font-size: 11px; }
+.result-grid .impact-low strong { color: #287b72; font-size: 12px; }
+.result-grid .impact-medium strong { color: #9a681d; font-size: 12px; }
+.result-grid .impact-severe strong { color: #be5c1d; font-size: 12px; }
 
 .control-section { margin-top: 14px; padding: 17px 16px 16px; }
 .section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding-bottom: 14px; border-bottom: 1px solid #e2eaec; }
@@ -88,8 +97,15 @@ input[type="range"]:focus-visible { outline: 3px solid rgba(28, 143, 155, 0.25);
 .explain-note svg { flex: 0 0 auto; color: #2a8e97; }
 .explain-note p { margin: 1px 0 0; font-size: 11px; line-height: 1.55; }
 
-@keyframes drift { from { transform: translateX(-12px); } to { transform: translateX(13px); } }
+@keyframes wind-sweep { 0% { opacity: 0; transform: translateX(-16px); } 18% { opacity: 0.95; } 78% { opacity: 0.95; } 100% { opacity: 0; transform: translateX(36px); } }
+@keyframes wave-push { from { transform: translateX(0); } to { transform: translateX(40px); } }
 @keyframes cloud-shift { from { transform: translateX(-3px); } to { transform: translateX(9px); } }
 @keyframes callout-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes overtop-pop { 0% { opacity: 0; transform: translateY(5px) scale(0.72); } 72% { opacity: 1; transform: translateY(0) scale(1.06); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes overtop-pulse { 0% { opacity: 0.9; transform: scale(0.55); } 75%, 100% { opacity: 0; transform: scale(1.8); } }
 @media (min-width: 500px) { .app-shell { padding-top: 32px; } }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  .wind-lines, .wave-flow, .cloud-a, .cloud-b { animation: none !important; opacity: 0.82; transform: none !important; }
+  .overtop-pulse { display: none; }
+}

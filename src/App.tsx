@@ -3,7 +3,7 @@ import { ArrowCounterClockwise, Pause, Play, WaveTriangle } from "@phosphor-icon
 import { SimulationControls } from "./components/SimulationControls"
 import { StageTimeline } from "./components/StageTimeline"
 import { StormScene } from "./components/StormScene"
-import { calculateSimulation, defaultSettings, formatMeters, getWaterRiseProgress, hasOvertopped, type SimulationSettings } from "./simulation/model"
+import { calculateSimulation, defaultSettings, formatMeters, getImpactLevel, getWaterRiseProgress, hasOvertopped, type SimulationSettings } from "./simulation/model"
 
 function getStage(progress: number) {
   if (progress < 0.2) return 0
@@ -71,6 +71,7 @@ function App() {
   const currentSeaLevelRise = result.effectiveSurge * waterRiseProgress
   const currentWaterLevel = result.tideLevel + currentSeaLevelRise
   const currentOvertops = activeStage === 3 && hasOvertopped(currentWaterLevel, result.profile.seawallHeight)
+  const impactLevel = getImpactLevel(currentSeaLevelRise, currentWaterLevel, result.profile.seawallHeight, currentOvertops)
   const stageMessage = currentOvertops && activeStage === 3
     ? "总水位超过海堤，低洼地开始积水。"
     : activeStage === 0
@@ -113,7 +114,14 @@ function App() {
             <span className="status-badge"><span className="status-dot" />动态示意</span>
           </div>
 
-          <StormScene coastCondition={settings.coastCondition} result={result} progress={progress} activeStage={activeStage} />
+          <StormScene
+            coastCondition={settings.coastCondition}
+            result={result}
+            progress={progress}
+            activeStage={activeStage}
+            typhoonIntensity={settings.typhoonIntensity}
+            isPlaying={isPlaying}
+          />
           <StageTimeline activeStage={activeStage} overtops={currentOvertops} />
 
           <div className={`stage-message ${currentOvertops && activeStage === 3 ? "is-warning" : ""}`} aria-live="polite">
@@ -125,7 +133,7 @@ function App() {
             <div><span>海水位抬升</span><strong>{formatMeters(currentSeaLevelRise)}</strong></div>
             <div><span>当前水位</span><strong>{formatMeters(currentWaterLevel)}</strong></div>
             <div><span>海堤高度</span><strong>{formatMeters(result.profile.seawallHeight)}</strong></div>
-            <div className={currentOvertops ? "is-warning" : "is-safe"}><span>结果</span><strong>{currentOvertops ? "低洼区积水" : "未越堤"}</strong></div>
+            <div className={`impact-${impactLevel.key}`}><span>沿岸影响</span><strong>{impactLevel.label}</strong></div>
           </div>
         </section>
 
