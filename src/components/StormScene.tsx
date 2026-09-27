@@ -78,7 +78,8 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
   const waveAmplitude = 2 + Math.pow(windRatio, 1.1) * 7.5
   const waveShift = 36 + windRatio * 30
   const windSetup = 4 + Math.pow(windRatio, 1.3) * 21
-  const currentY = shoreY + windSetup
+  // Keep the open-ocean reference level fixed; wind setup raises the water only toward shore.
+  const currentY = shoreY
   const windStrokeWidth = 1.45 + windRatio * 0.9
   const waveStrokeWidth = 1.8 + windRatio * 1.2
   const waveStyle = {
