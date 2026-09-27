@@ -17,9 +17,11 @@ export type CoastProfile = {
 
 export type SimulationResult = {
   tideLevel: number
+  displayTideLevel: number
   surge: number
   effectiveSurge: number
   totalWaterLevel: number
+  displayTotalWaterLevel: number
   inundationDepth: number
   overtops: boolean
   profile: CoastProfile
@@ -70,12 +72,14 @@ export const coastProfiles: Record<CoastCondition, CoastProfile> = {
 
 export const defaultSettings: SimulationSettings = {
   typhoonIntensity: 3,
-  tideLevel: 0.4,
+  tideLevel: 0.9,
   coastCondition: "slope",
 }
 
 export const OVERTOP_CLEARANCE = 0.08
 export const IMPACT_SCORE_MAX = 9
+// Compress the tide contribution in the classroom view so the three tide states sit lower in the scene.
+const TIDE_DISPLAY_FACTOR = 0.75
 
 const coastImpactPoints: Record<CoastCondition, number> = {
   steep: 0,
@@ -131,16 +135,20 @@ export function calculateSimulation(settings: SimulationSettings): SimulationRes
   const profile = coastProfiles[settings.coastCondition]
   const surge = 0.12 + settings.typhoonIntensity * 0.17
   const effectiveSurge = surge * profile.amplification
+  const displayTideLevel = settings.tideLevel * TIDE_DISPLAY_FACTOR
   const totalWaterLevel = settings.tideLevel + effectiveSurge
-  const inundationDepth = hasOvertopped(totalWaterLevel, profile.seawallHeight)
-    ? totalWaterLevel - profile.seawallHeight
+  const displayTotalWaterLevel = displayTideLevel + effectiveSurge
+  const inundationDepth = hasOvertopped(displayTotalWaterLevel, profile.seawallHeight)
+    ? displayTotalWaterLevel - profile.seawallHeight
     : 0
 
   return {
     tideLevel: settings.tideLevel,
+    displayTideLevel,
     surge,
     effectiveSurge,
     totalWaterLevel,
+    displayTotalWaterLevel,
     inundationDepth,
     overtops: inundationDepth > 0,
     profile,

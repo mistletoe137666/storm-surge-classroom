@@ -69,7 +69,7 @@ function App() {
 
   const waterRiseProgress = getWaterRiseProgress(progress)
   const currentSeaLevelRise = result.effectiveSurge * waterRiseProgress
-  const currentWaterLevel = result.tideLevel + currentSeaLevelRise
+  const currentWaterLevel = result.displayTideLevel + currentSeaLevelRise
   const currentOvertops = activeStage === 3 && hasOvertopped(currentWaterLevel, result.profile.seawallHeight)
   const showImpact = progress >= 1
   const impactLevel = getImpactLevel(settings, result.overtops)

@@ -58,10 +58,10 @@ function makeWavePath(y: number, amplitude: number, setup: number, shoreX: numbe
 
 export function StormScene({ coastCondition, result, progress, activeStage, typhoonIntensity, isPlaying }: StormSceneProps) {
   const profile = sceneProfiles[coastCondition]
-  const normalY = waterY(result.tideLevel, { wallTop: profile.wallTop, seawallHeight: result.profile.seawallHeight })
-  const targetY = waterY(result.totalWaterLevel, { wallTop: profile.wallTop, seawallHeight: result.profile.seawallHeight })
+  const normalY = waterY(result.displayTideLevel, { wallTop: profile.wallTop, seawallHeight: result.profile.seawallHeight })
+  const targetY = waterY(result.displayTotalWaterLevel, { wallTop: profile.wallTop, seawallHeight: result.profile.seawallHeight })
   const waterRiseProgress = getWaterRiseProgress(progress)
-  const visibleLevel = result.tideLevel + result.effectiveSurge * waterRiseProgress
+  const visibleLevel = result.displayTideLevel + result.effectiveSurge * waterRiseProgress
   const shoreY = waterY(visibleLevel, { wallTop: profile.wallTop, seawallHeight: result.profile.seawallHeight })
   const currentOvertops = activeStage === 3 && hasOvertopped(visibleLevel, result.profile.seawallHeight)
   const currentInundationDepth = Math.max(0, visibleLevel - result.profile.seawallHeight)
