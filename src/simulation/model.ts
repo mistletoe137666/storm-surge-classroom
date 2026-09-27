@@ -40,7 +40,7 @@ export const coastProfiles: Record<CoastCondition, CoastProfile> = {
     amplification: 1,
     seawallHeight: 1.35,
     slope: "slope",
-    description: "岸线较缓，异常增水更容易影响海堤附近。",
+    description: "岸线较缓，海水在岸边堆积时更容易影响海堤附近。",
   },
   lowland: {
     label: "低洼海岸",
@@ -54,8 +54,18 @@ export const coastProfiles: Record<CoastCondition, CoastProfile> = {
 
 export const defaultSettings: SimulationSettings = {
   typhoonIntensity: 3,
-  tideLevel: 0.8,
+  tideLevel: 0.9,
   coastCondition: "slope",
+}
+
+export const OVERTOP_CLEARANCE = 0.08
+
+export function getWaterRiseProgress(progress: number): number {
+  return Math.min(1, Math.max(0, (progress - 0.2) / 0.56))
+}
+
+export function hasOvertopped(waterLevel: number, seawallHeight: number): boolean {
+  return waterLevel - seawallHeight >= OVERTOP_CLEARANCE
 }
 
 export function calculateSimulation(settings: SimulationSettings): SimulationResult {
@@ -63,7 +73,9 @@ export function calculateSimulation(settings: SimulationSettings): SimulationRes
   const surge = 0.12 + settings.typhoonIntensity * 0.17
   const effectiveSurge = surge * profile.amplification
   const totalWaterLevel = settings.tideLevel + effectiveSurge
-  const inundationDepth = Math.max(0, totalWaterLevel - profile.seawallHeight)
+  const inundationDepth = hasOvertopped(totalWaterLevel, profile.seawallHeight)
+    ? totalWaterLevel - profile.seawallHeight
+    : 0
 
   return {
     tideLevel: settings.tideLevel,

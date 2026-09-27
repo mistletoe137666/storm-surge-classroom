@@ -1,18 +1,15 @@
-import { ArrowCounterClockwise, Pause, Play, Wind } from "@phosphor-icons/react"
+import { Wind } from "@phosphor-icons/react"
 import type { CoastCondition, SimulationSettings } from "../simulation/model"
 import { coastProfiles } from "../simulation/model"
 
 type SimulationControlsProps = {
   settings: SimulationSettings
-  isPlaying: boolean
   onSettingsChange: (settings: SimulationSettings) => void
-  onPlay: () => void
-  onReset: () => void
 }
 
 const coastOptions: CoastCondition[] = ["steep", "slope", "lowland"]
 
-export function SimulationControls({ settings, isPlaying, onSettingsChange, onPlay, onReset }: SimulationControlsProps) {
+export function SimulationControls({ settings, onSettingsChange }: SimulationControlsProps) {
   return (
     <section className="control-section" aria-labelledby="control-title">
       <div className="section-heading">
@@ -58,16 +55,6 @@ export function SimulationControls({ settings, isPlaying, onSettingsChange, onPl
         </div>
       </div>
 
-      <div className="action-row">
-        <button className="primary-button" type="button" onClick={onPlay}>
-          {isPlaying ? <Pause size={19} weight="fill" /> : <Play size={19} weight="fill" />}
-          {isPlaying ? "暂停模拟" : "开始模拟"}
-        </button>
-        <button className="secondary-button" type="button" onClick={onReset}>
-          <ArrowCounterClockwise size={18} weight="bold" />
-          重置
-        </button>
-      </div>
     </section>
   )
 }
