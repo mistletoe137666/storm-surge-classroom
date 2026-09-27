@@ -53,9 +53,12 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
   const inundationWidth = overflowRatio * (360 - profile.wallX)
   const impactLevel = getImpactLevel({ typhoonIntensity, tideLevel: result.tideLevel, coastCondition }, result.overtops)
   const impactColor = impactColors[impactLevel.key]
-  const windDuration = 3.05 - typhoonIntensity * 0.35
-  const waveDuration = windDuration * 1.25
-  const waveAmplitude = 2.1 + typhoonIntensity * 0.62
+  const windRatio = (typhoonIntensity - 1) / 4
+  const windDuration = 3.6 - windRatio * 2.1
+  const waveDuration = 4.8 - windRatio * 3.2
+  const waveAmplitude = 2.2 + windRatio * 4.6
+  const windStrokeWidth = 1.45 + windRatio * 0.9
+  const waveStrokeWidth = 1.8 + windRatio * 0.9
   const callout = activeStage < 3 ? stageCallouts[activeStage] : {
     title: currentOvertops ? "海水越过海堤" : "水位未越过海堤",
     detail: currentOvertops ? "水流进入沿岸城市低洼地" : "当前条件下没有形成淹没",
@@ -77,8 +80,8 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
         <path className="cloud cloud-b" d="M142 22 C158 10 173 17 177 28 C191 22 208 28 207 39 L133 39 C130 32 134 27 142 22 Z" fill="#aacdd0" fillOpacity="0.2" />
         <path d="M0 88 C48 83 89 87 128 84 C169 80 206 84 246 80 C285 76 324 81 360 78 L360 125 L0 125 Z" fill="#74b9c5" fillOpacity="0.25" />
         <path d="M0 35 L0 18 M10 35 L10 13 M20 35 L20 19 M30 35 L30 11" stroke="#d7f0ef" strokeOpacity="0.3" strokeWidth="1.2" />
-        <g className="wind-lines" style={{ animationDuration: `${windDuration}s` }} stroke="#e5faf7" strokeWidth={1.45 + typhoonIntensity * 0.16} strokeLinecap="round" markerEnd="url(#arrow-marker)"><path d="M9 65 C42 57 72 61 106 57" /><path d="M25 80 C58 72 89 76 126 70" /><path d="M57 47 C87 42 118 46 148 41" /></g>
-        <g className="wind-lines wind-lines-secondary" style={{ animationDuration: `${windDuration}s`, animationDelay: `${-windDuration / 2}s` }} stroke="#c9ebe9" strokeWidth={1.15 + typhoonIntensity * 0.12} strokeLinecap="round" markerEnd="url(#arrow-marker)"><path d="M-35 56 C-9 50 14 53 40 49" /><path d="M-19 90 C7 84 31 86 58 82" /></g>
+        <g className="wind-lines" style={{ animationDuration: `${windDuration}s` }} stroke="#e5faf7" strokeWidth={windStrokeWidth} strokeLinecap="round" markerEnd="url(#arrow-marker)"><path d="M9 65 C42 57 72 61 106 57" /><path d="M25 80 C58 72 89 76 126 70" /><path d="M57 47 C87 42 118 46 148 41" /></g>
+        <g className="wind-lines wind-lines-secondary" style={{ animationDuration: `${windDuration}s`, animationDelay: `${-windDuration / 2}s` }} stroke="#c9ebe9" strokeWidth={1.05 + windRatio * 0.72} strokeLinecap="round" markerEnd="url(#arrow-marker)"><path d="M-35 56 C-9 50 14 53 40 49" /><path d="M-19 90 C7 84 31 86 58 82" /></g>
         <g className="wind-badge">
           <rect x="12" y="89" width="52" height="17" rx="5" fill="#0a526c" fillOpacity="0.88" />
           <text x="20" y="100.5" fill="#e9f7f6" fontSize="8" fontWeight="800">向岸风</text>
@@ -87,9 +90,9 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
         <path d={`M0 ${currentY} C38 ${currentY - 7} 64 ${currentY + 5} 101 ${currentY - 2} C138 ${currentY - 9} 165 ${currentY + 4} 203 ${currentY - 3} C238 ${currentY - 9} 278 ${currentY + 4} 360 ${currentY - 4} L360 260 L0 260 Z`} fill="url(#water-gradient)" />
         <path d={`M0 ${currentY + 6} C38 ${currentY - 1} 64 ${currentY + 11} 101 ${currentY + 4} C138 ${currentY - 3} 165 ${currentY + 10} 203 ${currentY + 3} C238 ${currentY - 3} 278 ${currentY + 10} 360 ${currentY + 2} L360 260 L0 260 Z`} fill="url(#water-lines)" />
         <g className="wave-flow" style={{ animationDuration: `${waveDuration}s` }} fill="none" strokeLinecap="round">
-          <path d={makeWavePath(currentY + 3, waveAmplitude)} stroke="#d5f7f2" strokeOpacity="0.82" strokeWidth="1.8" />
-          <path d={makeWavePath(currentY + 17, waveAmplitude * 0.72)} stroke="#a9e5e3" strokeOpacity="0.48" strokeWidth="1.3" />
-          <path d={makeWavePath(currentY + 31, waveAmplitude * 0.52)} stroke="#87d3d5" strokeOpacity="0.34" strokeWidth="1.1" />
+          <path d={makeWavePath(currentY + 3, waveAmplitude)} stroke="#d5f7f2" strokeOpacity={0.82 + windRatio * 0.12} strokeWidth={waveStrokeWidth} />
+          <path d={makeWavePath(currentY + 17, waveAmplitude * 0.72)} stroke="#a9e5e3" strokeOpacity={0.48 + windRatio * 0.1} strokeWidth={1.3 + windRatio * 0.55} />
+          <path d={makeWavePath(currentY + 31, waveAmplitude * 0.52)} stroke="#87d3d5" strokeOpacity={0.34 + windRatio * 0.08} strokeWidth={1.1 + windRatio * 0.4} />
         </g>
         <path d={profile.shore} fill="url(#land-gradient)" stroke="#a48b68" strokeWidth="1" />
         <path d="M0 231 C45 224 98 218 145 210 C165 207 177 201 194 194" fill="none" stroke="#4d8d97" strokeOpacity="0.5" strokeWidth="2" />
@@ -125,7 +128,7 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
         </g>
 
         <g className="lowland-label"><rect x="292" y={profile.landTop + 13} width="60" height="16" rx="5" fill="#536e6c" fillOpacity="0.9" /><text x="322" y={profile.landTop + 24} textAnchor="middle" fill="#f4f5ec" fontSize="8" fontWeight="700">沿岸城市</text></g>
-        {currentOvertops && activeStage === 3 && <g className="overtop-label"><circle className="overtop-pulse" cx={profile.wallX + 3} cy={profile.wallTop - 2} r="7" fill="none" stroke="#ffd391" strokeWidth="2" /><rect x={profile.wallX - 16} y={profile.wallTop - 29} width="49" height="13" rx="4" fill="#f4a340" /><text x={profile.wallX + 8.5} y={profile.wallTop - 20} textAnchor="middle" fill="#44260c" fontSize="6.8" fontWeight="800">超过海堤</text></g>}
+        {currentOvertops && activeStage === 3 && <g className="overtop-label"><circle className="overtop-pulse" cx={profile.wallX + 3} cy={profile.wallTop - 2} r="7" fill="none" stroke="#ffd391" strokeWidth="2" /><rect x={profile.wallX - 86} y={profile.wallTop - 29} width="56" height="13" rx="4" fill="#f4a340" /><text x={profile.wallX - 58} y={profile.wallTop - 20} textAnchor="middle" fill="#44260c" fontSize="6.8" fontWeight="800">超过海堤</text></g>}
       </svg>
       <div className="scene-caption"><span>海洋</span><span>海岸剖面</span><span>沿岸城市</span></div>
     </div>

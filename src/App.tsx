@@ -30,7 +30,7 @@ function App() {
     let frame = 0
     let start = 0
     const startingProgress = progressRef.current
-    const duration = 15000
+    const duration = 8000
     const animate = (time: number) => {
       if (!start) start = time
       const elapsed = time - start
