@@ -34,17 +34,17 @@ function waterY(level: number, profile: { wallTop: number; seawallHeight: number
   return Math.max(16, y)
 }
 
-function makeSurfacePath(y: number, setup: number) {
-  const baseline = (x: number) => y - setup * Math.min(1, Math.max(0, x / 360))
+function makeSurfacePath(y: number, setup: number, shoreX: number) {
+  const baseline = (x: number) => y - setup * Math.min(1, Math.max(0, x / shoreX))
   return `M0 ${baseline(0)} C38 ${baseline(38) - 7} 64 ${baseline(64) + 5} 101 ${baseline(101) - 2} C138 ${baseline(138) - 9} 165 ${baseline(165) + 4} 203 ${baseline(203) - 3} C238 ${baseline(238) - 9} 278 ${baseline(278) + 4} 360 ${baseline(360) - 4} L360 260 L0 260 Z`
 }
 
-function makeWavePath(y: number, amplitude: number, setup: number) {
+function makeWavePath(y: number, amplitude: number, setup: number, shoreX: number) {
   const parts = [`M -80 ${y}`]
   const startX = -80
   const segmentWidth = 20
   const segmentCount = 25
-  const baseline = (x: number) => y - setup * Math.min(1, Math.max(0, x / 360))
+  const baseline = (x: number) => y - setup * Math.min(1, Math.max(0, x / shoreX))
 
   for (let index = 0; index < segmentCount; index += 1) {
     const endX = startX + segmentWidth * (index + 1)
@@ -62,7 +62,7 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
   const targetY = waterY(result.totalWaterLevel, { wallTop: profile.wallTop, seawallHeight: result.profile.seawallHeight })
   const waterRiseProgress = getWaterRiseProgress(progress)
   const visibleLevel = result.tideLevel + result.effectiveSurge * waterRiseProgress
-  const currentY = waterY(visibleLevel, { wallTop: profile.wallTop, seawallHeight: result.profile.seawallHeight })
+  const shoreY = waterY(visibleLevel, { wallTop: profile.wallTop, seawallHeight: result.profile.seawallHeight })
   const currentOvertops = activeStage === 3 && hasOvertopped(visibleLevel, result.profile.seawallHeight)
   const currentInundationDepth = Math.max(0, visibleLevel - result.profile.seawallHeight)
   const inundationProgress = Math.min(1, Math.max(0, (progress - 0.76) / 0.24))
@@ -77,7 +77,8 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
   const waveDuration = 6 - windRatio * 4.6
   const waveAmplitude = 2 + Math.pow(windRatio, 1.1) * 7.5
   const waveShift = 36 + windRatio * 30
-  const windSetup = windRatio * 12
+  const windSetup = 4 + Math.pow(windRatio, 1.3) * 21
+  const currentY = shoreY + windSetup
   const windStrokeWidth = 1.45 + windRatio * 0.9
   const waveStrokeWidth = 1.8 + windRatio * 1.2
   const waveStyle = {
@@ -112,12 +113,12 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
           <text x="20" y="100.5" fill="#e9f7f6" fontSize="8" fontWeight="800">向岸风</text>
         </g>
 
-        <path d={makeSurfacePath(currentY, windSetup)} fill="url(#water-gradient)" />
-        <path d={makeSurfacePath(currentY + 6, windSetup)} fill="url(#water-lines)" />
+        <path d={makeSurfacePath(currentY, windSetup, profile.wallX)} fill="url(#water-gradient)" />
+        <path d={makeSurfacePath(currentY + 6, windSetup, profile.wallX)} fill="url(#water-lines)" />
         <g className="wave-flow" style={waveStyle} fill="none" strokeLinecap="round">
-          <path d={makeWavePath(currentY + 3, waveAmplitude, windSetup)} stroke="#d5f7f2" strokeOpacity={0.82 + windRatio * 0.12} strokeWidth={waveStrokeWidth} />
-          <path d={makeWavePath(currentY + 17, waveAmplitude * 0.72, windSetup)} stroke="#a9e5e3" strokeOpacity={0.48 + windRatio * 0.1} strokeWidth={1.3 + windRatio * 0.55} />
-          <path d={makeWavePath(currentY + 31, waveAmplitude * 0.52, windSetup)} stroke="#87d3d5" strokeOpacity={0.34 + windRatio * 0.08} strokeWidth={1.1 + windRatio * 0.4} />
+          <path d={makeWavePath(currentY + 3, waveAmplitude, windSetup, profile.wallX)} stroke="#d5f7f2" strokeOpacity={0.82 + windRatio * 0.12} strokeWidth={waveStrokeWidth} />
+          <path d={makeWavePath(currentY + 17, waveAmplitude * 0.72, windSetup, profile.wallX)} stroke="#a9e5e3" strokeOpacity={0.48 + windRatio * 0.1} strokeWidth={1.3 + windRatio * 0.55} />
+          <path d={makeWavePath(currentY + 31, waveAmplitude * 0.52, windSetup, profile.wallX)} stroke="#87d3d5" strokeOpacity={0.34 + windRatio * 0.08} strokeWidth={1.1 + windRatio * 0.4} />
         </g>
         <path d={profile.shore} fill="url(#land-gradient)" stroke="#a48b68" strokeWidth="1" />
         <path d="M0 231 C45 224 98 218 145 210 C165 207 177 201 194 194" fill="none" stroke="#4d8d97" strokeOpacity="0.5" strokeWidth="2" />
