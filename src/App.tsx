@@ -71,9 +71,10 @@ function App() {
   const currentSeaLevelRise = result.effectiveSurge * waterRiseProgress
   const currentWaterLevel = result.tideLevel + currentSeaLevelRise
   const currentOvertops = activeStage === 3 && hasOvertopped(currentWaterLevel, result.profile.seawallHeight)
-  const impactLevel = getImpactLevel(currentSeaLevelRise, currentWaterLevel, result.profile.seawallHeight, currentOvertops)
+  const showImpact = progress >= 1
+  const impactLevel = getImpactLevel(result.effectiveSurge, result.totalWaterLevel, result.profile.seawallHeight, result.overtops)
   const stageMessage = currentOvertops && activeStage === 3
-    ? "总水位超过海堤，低洼地开始积水。"
+    ? "总水位超过海堤，沿岸城市低洼地开始积水。"
     : activeStage === 0
       ? "向岸风把海水持续推向岸边。"
       : activeStage === 1
@@ -133,7 +134,7 @@ function App() {
             <div><span>海水位抬升</span><strong>{formatMeters(currentSeaLevelRise)}</strong></div>
             <div><span>当前水位</span><strong>{formatMeters(currentWaterLevel)}</strong></div>
             <div><span>海堤高度</span><strong>{formatMeters(result.profile.seawallHeight)}</strong></div>
-            <div className={`impact-${impactLevel.key}`}><span>沿岸影响</span><strong>{impactLevel.label}</strong></div>
+            <div className={`impact-${showImpact ? impactLevel.key : "pending"}`}><span>沿岸影响</span><strong>{showImpact ? impactLevel.label : "完成后显示"}</strong></div>
           </div>
         </section>
 

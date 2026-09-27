@@ -52,10 +52,10 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
     : 0
   const inundationWidth = overflowRatio * (360 - profile.wallX)
   const impactLevel = getImpactLevel(
-    result.effectiveSurge * waterRiseProgress,
-    visibleLevel,
+    result.effectiveSurge,
+    result.totalWaterLevel,
     result.profile.seawallHeight,
-    currentOvertops,
+    result.overtops,
   )
   const impactColor = impactColors[impactLevel.key]
   const windDuration = 3.05 - typhoonIntensity * 0.35
@@ -63,12 +63,12 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
   const waveAmplitude = 2.1 + typhoonIntensity * 0.62
   const callout = activeStage < 3 ? stageCallouts[activeStage] : {
     title: currentOvertops ? "海水越过海堤" : "水位未越过海堤",
-    detail: currentOvertops ? "水流进入低洼居民区" : "当前条件下没有形成淹没",
+    detail: currentOvertops ? "水流进入沿岸城市低洼地" : "当前条件下没有形成淹没",
   }
 
   return (
     <div className="storm-scene-wrap">
-      <svg className={`storm-scene ${isPlaying ? "is-playing" : ""}`} viewBox="0 0 360 260" role="img" aria-label={`台风强度${typhoonIntensity}级时，海洋、海堤与低洼居民区的风暴潮侧面剖面示意图`}>
+      <svg className={`storm-scene ${isPlaying ? "is-playing" : ""}`} viewBox="0 0 360 260" role="img" aria-label="海洋、海堤与沿岸城市的风暴潮侧面剖面示意图">
         <defs>
           <linearGradient id="sky-gradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#183b55" /><stop offset="1" stopColor="#7db7c3" /></linearGradient>
           <linearGradient id="water-gradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#32a4b4" /><stop offset="1" stopColor="#07567d" /></linearGradient>
@@ -85,8 +85,8 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
         <g className="wind-lines" style={{ animationDuration: `${windDuration}s` }} stroke="#e5faf7" strokeWidth={1.45 + typhoonIntensity * 0.16} strokeLinecap="round" markerEnd="url(#arrow-marker)"><path d="M9 65 C42 57 72 61 106 57" /><path d="M25 80 C58 72 89 76 126 70" /><path d="M57 47 C87 42 118 46 148 41" /></g>
         <g className="wind-lines wind-lines-secondary" style={{ animationDuration: `${windDuration}s`, animationDelay: `${-windDuration / 2}s` }} stroke="#c9ebe9" strokeWidth={1.15 + typhoonIntensity * 0.12} strokeLinecap="round" markerEnd="url(#arrow-marker)"><path d="M-35 56 C-9 50 14 53 40 49" /><path d="M-19 90 C7 84 31 86 58 82" /></g>
         <g className="wind-badge">
-          <rect x="12" y="89" width="83" height="17" rx="5" fill="#0a526c" fillOpacity="0.88" />
-          <text x="20" y="100.5" fill="#e9f7f6" fontSize="8" fontWeight="800">向岸风 · 强度 {typhoonIntensity}/5</text>
+          <rect x="12" y="89" width="52" height="17" rx="5" fill="#0a526c" fillOpacity="0.88" />
+          <text x="20" y="100.5" fill="#e9f7f6" fontSize="8" fontWeight="800">向岸风</text>
         </g>
 
         <path d={`M0 ${currentY} C38 ${currentY - 7} 64 ${currentY + 5} 101 ${currentY - 2} C138 ${currentY - 9} 165 ${currentY + 4} 203 ${currentY - 3} C238 ${currentY - 9} 278 ${currentY + 4} 360 ${currentY - 4} L360 260 L0 260 Z`} fill="url(#water-gradient)" />
@@ -109,12 +109,12 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
           <text x="19" y="28" fill="#f2fbfa" fontSize="8.6" fontWeight="800">{callout.title}</text>
           <text x="19" y="42" fill="#cbe8e6" fontSize="7.3">{callout.detail}</text>
         </g>
-        <g key={impactLevel.key} className="impact-panel">
+        {progress >= 1 && <g key={impactLevel.key} className="impact-panel">
           <rect x="224" y="12" width="126" height="40" rx="6" fill={impactColor.background} fillOpacity="0.97" />
           <text x="234" y="27" fill={impactColor.muted} fontSize="6.8" fontWeight="700">沿岸影响程度</text>
           <circle cx="235" cy="39" r="2.5" fill={impactColor.foreground} />
           <text x="242" y="43" fill={impactColor.foreground} fontSize="10" fontWeight="800">{impactLevel.shortLabel}</text>
-        </g>
+        </g>}
 
         <g className="seawall"><rect x={profile.wallX} y={profile.wallTop} width="7" height={260 - profile.wallTop} fill="#526977" /><rect x={profile.wallX - 2} y={profile.wallTop - 3} width="11" height="4" rx="1.5" fill="#304958" /><line x1={profile.wallX - 4} y1={profile.wallTop - 8} x2={profile.wallX + 12} y2={profile.wallTop - 8} stroke="#ffcc78" strokeDasharray="2 2" strokeWidth="1" /><text x={profile.wallX - 5} y={profile.wallTop - 12} fill="#ffe6b0" fontSize="8" fontWeight="700" textAnchor="end">海堤</text></g>
 
@@ -128,10 +128,10 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
           {[0, 1, 2].map((row) => <g key={`second-${row}`} fill="#71a4aa" stroke="none" opacity="0.84"><rect x={profile.wallX + 61} y={profile.buildingsTop + 4 + row * 9} width="4" height="4" /><rect x={profile.wallX + 68} y={profile.buildingsTop + 4 + row * 9} width="4" height="4" /></g>)}
         </g>
 
-        <g className="lowland-label"><rect x="292" y={profile.landTop + 13} width="60" height="16" rx="5" fill="#536e6c" fillOpacity="0.9" /><text x="322" y={profile.landTop + 24} textAnchor="middle" fill="#f4f5ec" fontSize="8" fontWeight="700">低洼居民区</text></g>
+        <g className="lowland-label"><rect x="292" y={profile.landTop + 13} width="60" height="16" rx="5" fill="#536e6c" fillOpacity="0.9" /><text x="322" y={profile.landTop + 24} textAnchor="middle" fill="#f4f5ec" fontSize="8" fontWeight="700">沿岸城市</text></g>
         {currentOvertops && activeStage === 3 && <g className="overtop-label"><circle className="overtop-pulse" cx={profile.wallX + 3} cy={profile.wallTop - 2} r="7" fill="none" stroke="#ffd391" strokeWidth="2" /><rect x={profile.wallX - 16} y={profile.wallTop - 29} width="49" height="13" rx="4" fill="#f4a340" /><text x={profile.wallX + 8.5} y={profile.wallTop - 20} textAnchor="middle" fill="#44260c" fontSize="6.8" fontWeight="800">超过海堤</text></g>}
       </svg>
-      <div className="scene-caption"><span>海洋</span><span>海岸剖面</span><span>低洼陆地</span></div>
+      <div className="scene-caption"><span>海洋</span><span>海岸剖面</span><span>沿岸城市</span></div>
     </div>
   )
 }

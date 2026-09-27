@@ -63,6 +63,7 @@ h2 { margin-bottom: 0; color: #18394d; font-size: 18px; line-height: 1.25; lette
 .result-grid .is-warning strong { color: #be691d; font-size: 12px; }
 .result-grid .is-safe strong { color: #287b72; font-size: 12px; }
 .result-grid .impact-none strong { color: #607a85; font-size: 11px; }
+.result-grid .impact-pending strong { color: #607a85; font-size: 11px; }
 .result-grid .impact-low strong { color: #287b72; font-size: 12px; }
 .result-grid .impact-medium strong { color: #9a681d; font-size: 12px; }
 .result-grid .impact-severe strong { color: #be5c1d; font-size: 12px; }
