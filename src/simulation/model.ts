@@ -30,6 +30,15 @@ export type ImpactLevel = {
   label: string
   shortLabel: string
   description: string
+  score: ImpactScore
+}
+
+export type ImpactScore = {
+  wind: number
+  tide: number
+  coast: number
+  total: number
+  max: number
 }
 
 export const coastProfiles: Record<CoastCondition, CoastProfile> = {
@@ -66,6 +75,13 @@ export const defaultSettings: SimulationSettings = {
 }
 
 export const OVERTOP_CLEARANCE = 0.08
+export const IMPACT_SCORE_MAX = 9
+
+const coastImpactPoints: Record<CoastCondition, number> = {
+  steep: 0,
+  slope: 1,
+  lowland: 2,
+}
 
 export function getWaterRiseProgress(progress: number): number {
   return Math.min(1, Math.max(0, (progress - 0.2) / 0.56))
@@ -75,22 +91,40 @@ export function hasOvertopped(waterLevel: number, seawallHeight: number): boolea
   return waterLevel - seawallHeight >= OVERTOP_CLEARANCE
 }
 
+function getTideImpactPoints(tideLevel: number): number {
+  if (tideLevel < 0.6) return 0
+  if (tideLevel < 1.0) return 1
+  if (tideLevel < 1.3) return 2
+  return 3
+}
+
+export function getImpactScore(settings: Pick<SimulationSettings, "typhoonIntensity" | "tideLevel" | "coastCondition">): ImpactScore {
+  const wind = Math.min(4, Math.max(0, Math.round(settings.typhoonIntensity) - 1))
+  const tide = getTideImpactPoints(settings.tideLevel)
+  const coast = coastImpactPoints[settings.coastCondition]
+
+  return { wind, tide, coast, total: wind + tide + coast, max: IMPACT_SCORE_MAX }
+}
+
 export function getImpactLevel(
-  seaLevelRise: number,
-  waterLevel: number,
-  seawallHeight: number,
+  settings: Pick<SimulationSettings, "typhoonIntensity" | "tideLevel" | "coastCondition">,
   overtopped: boolean,
 ): ImpactLevel {
+  const score = getImpactScore(settings)
+
   if (overtopped) {
-    return { key: "severe", label: "严重影响", shortLabel: "严重", description: "海水已经越过海堤" }
+    return { key: "severe", label: "严重影响", shortLabel: "严重", description: "总水位已经越过海堤", score }
   }
-  if (seaLevelRise < 0.1) {
-    return { key: "none", label: "暂无明显影响", shortLabel: "暂无", description: "海水位变化还不明显" }
+  if (score.total >= 8) {
+    return { key: "severe", label: "严重影响", shortLabel: "严重", description: "三个条件叠加作用明显", score }
   }
-  if (seaLevelRise >= 0.35 || seawallHeight - waterLevel <= 0.15) {
-    return { key: "medium", label: "中度影响", shortLabel: "中度", description: "水位已经接近海堤" }
+  if (score.total >= 5) {
+    return { key: "medium", label: "中度影响", shortLabel: "中度", description: "三个条件叠加作用较明显", score }
   }
-  return { key: "low", label: "轻度影响", shortLabel: "轻度", description: "海水位出现小幅抬升" }
+  if (score.total >= 2) {
+    return { key: "low", label: "轻度影响", shortLabel: "轻度", description: "三个条件的叠加作用较弱", score }
+  }
+  return { key: "none", label: "暂无明显影响", shortLabel: "暂无", description: "三个条件的叠加作用不明显", score }
 }
 
 export function calculateSimulation(settings: SimulationSettings): SimulationResult {

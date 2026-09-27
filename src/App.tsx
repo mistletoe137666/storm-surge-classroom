@@ -72,7 +72,7 @@ function App() {
   const currentWaterLevel = result.tideLevel + currentSeaLevelRise
   const currentOvertops = activeStage === 3 && hasOvertopped(currentWaterLevel, result.profile.seawallHeight)
   const showImpact = progress >= 1
-  const impactLevel = getImpactLevel(result.effectiveSurge, result.totalWaterLevel, result.profile.seawallHeight, result.overtops)
+  const impactLevel = getImpactLevel(settings, result.overtops)
   const stageMessage = currentOvertops && activeStage === 3
     ? "总水位超过海堤，沿岸城市低洼地开始积水。"
     : activeStage === 0
