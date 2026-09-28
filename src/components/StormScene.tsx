@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react"
-import { getImpactLevel, getWaterRiseProgress, hasOvertopped, WATER_DISPLAY_DROP_METERS, type CoastCondition, type SimulationResult } from "../simulation/model"
+import { getImpactLevel, getNearshoreWaterLevel, getWaterRiseProgress, getWindSetupPixels, hasOvertopped, WATER_DISPLAY_DROP_METERS, type CoastCondition, type SimulationResult } from "../simulation/model"
 
 type StormSceneProps = {
   coastCondition: CoastCondition
@@ -63,8 +63,9 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
   const waterRiseProgress = getWaterRiseProgress(progress)
   const visibleLevel = result.tideLevel + result.effectiveSurge * waterRiseProgress
   const shoreY = waterY(visibleLevel, { wallTop: profile.wallTop, seawallHeight: result.profile.seawallHeight })
-  const currentOvertops = activeStage === 3 && hasOvertopped(visibleLevel, result.profile.seawallHeight)
-  const currentInundationDepth = Math.max(0, visibleLevel - result.profile.seawallHeight - WATER_DISPLAY_DROP_METERS)
+  const nearshoreVisibleLevel = getNearshoreWaterLevel(visibleLevel, typhoonIntensity)
+  const currentOvertops = activeStage === 3 && hasOvertopped(nearshoreVisibleLevel, result.profile.seawallHeight)
+  const currentInundationDepth = Math.max(0, nearshoreVisibleLevel - result.profile.seawallHeight - WATER_DISPLAY_DROP_METERS)
   const inundationProgress = Math.min(1, Math.max(0, (progress - 0.76) / 0.24))
   const overflowRatio = currentOvertops
     ? Math.min(1, Math.max(0, currentInundationDepth / 0.5)) * inundationProgress
@@ -77,7 +78,7 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
   const waveDuration = 6 - windRatio * 4.6
   const waveAmplitude = 2 + Math.pow(windRatio, 1.1) * 7.5
   const waveShift = 36 + windRatio * 30
-  const windSetup = 4 + Math.pow(windRatio, 1.3) * 21
+  const windSetup = getWindSetupPixels(typhoonIntensity)
   // Keep the open-ocean reference level fixed; wind setup raises the water only toward shore.
   const currentY = shoreY
   const windStrokeWidth = 1.45 + windRatio * 0.9

@@ -3,7 +3,7 @@ import { ArrowCounterClockwise, Pause, Play, WaveTriangle } from "@phosphor-icon
 import { SimulationControls } from "./components/SimulationControls"
 import { StageTimeline } from "./components/StageTimeline"
 import { StormScene } from "./components/StormScene"
-import { calculateSimulation, defaultSettings, formatMeters, getImpactLevel, getWaterRiseProgress, hasOvertopped, WATER_DISPLAY_DROP_METERS, type SimulationSettings } from "./simulation/model"
+import { calculateSimulation, defaultSettings, formatMeters, getImpactLevel, getNearshoreWaterLevel, getWaterRiseProgress, hasOvertopped, WATER_DISPLAY_DROP_METERS, type SimulationSettings } from "./simulation/model"
 
 function getStage(progress: number) {
   if (progress < 0.2) return 0
@@ -69,8 +69,10 @@ function App() {
 
   const waterRiseProgress = getWaterRiseProgress(progress)
   const currentSeaLevelRise = result.effectiveSurge * waterRiseProgress
-  const currentWaterLevel = Math.max(0, result.tideLevel + currentSeaLevelRise - WATER_DISPLAY_DROP_METERS)
-  const currentOvertops = activeStage === 3 && hasOvertopped(currentWaterLevel, result.profile.seawallHeight)
+  const currentWaterLevel = result.tideLevel + currentSeaLevelRise
+  const currentNearshoreWaterLevel = getNearshoreWaterLevel(currentWaterLevel, settings.typhoonIntensity)
+  const currentOvertops = activeStage === 3 && hasOvertopped(currentNearshoreWaterLevel, result.profile.seawallHeight)
+  const displayCurrentWaterLevel = Math.max(0, currentWaterLevel - WATER_DISPLAY_DROP_METERS)
   const showImpact = progress >= 1
   const impactLevel = getImpactLevel(settings, result.overtops)
   const stageMessage = currentOvertops && activeStage === 3
@@ -132,7 +134,7 @@ function App() {
 
           <div className="result-grid" aria-live="polite">
             <div><span>海水位抬升</span><strong>{formatMeters(currentSeaLevelRise)}</strong></div>
-            <div><span>当前水位</span><strong>{formatMeters(currentWaterLevel)}</strong></div>
+            <div><span>当前水位</span><strong>{formatMeters(displayCurrentWaterLevel)}</strong></div>
             <div><span>海堤高度</span><strong>{formatMeters(result.profile.seawallHeight)}</strong></div>
             <div className={`impact-${showImpact ? impactLevel.key : "pending"}`}><span>沿岸影响</span><strong>{showImpact ? impactLevel.label : "完成后显示"}</strong></div>
           </div>

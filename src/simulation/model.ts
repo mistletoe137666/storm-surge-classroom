@@ -20,6 +20,7 @@ export type SimulationResult = {
   surge: number
   effectiveSurge: number
   totalWaterLevel: number
+  nearshoreWaterLevel: number
   inundationDepth: number
   overtops: boolean
   profile: CoastProfile
@@ -88,6 +89,15 @@ export function getWaterRiseProgress(progress: number): number {
   return Math.min(1, Math.max(0, (progress - 0.2) / 0.56))
 }
 
+export function getWindSetupPixels(typhoonIntensity: number): number {
+  const windRatio = (Math.min(5, Math.max(1, typhoonIntensity)) - 1) / 4
+  return 4 + Math.pow(windRatio, 1.3) * 21
+}
+
+export function getNearshoreWaterLevel(waterLevel: number, typhoonIntensity: number): number {
+  return waterLevel + getWindSetupPixels(typhoonIntensity) / 30
+}
+
 export function hasOvertopped(waterLevel: number, seawallHeight: number): boolean {
   return waterLevel - seawallHeight - WATER_DISPLAY_DROP_METERS >= OVERTOP_CLEARANCE
 }
@@ -133,8 +143,9 @@ export function calculateSimulation(settings: SimulationSettings): SimulationRes
   const surge = 0.12 + settings.typhoonIntensity * 0.17
   const effectiveSurge = surge * profile.amplification
   const totalWaterLevel = settings.tideLevel + effectiveSurge
-  const inundationDepth = hasOvertopped(totalWaterLevel, profile.seawallHeight)
-    ? totalWaterLevel - profile.seawallHeight - WATER_DISPLAY_DROP_METERS
+  const nearshoreWaterLevel = getNearshoreWaterLevel(totalWaterLevel, settings.typhoonIntensity)
+  const inundationDepth = hasOvertopped(nearshoreWaterLevel, profile.seawallHeight)
+    ? nearshoreWaterLevel - profile.seawallHeight - WATER_DISPLAY_DROP_METERS
     : 0
 
   return {
@@ -142,6 +153,7 @@ export function calculateSimulation(settings: SimulationSettings): SimulationRes
     surge,
     effectiveSurge,
     totalWaterLevel,
+    nearshoreWaterLevel,
     inundationDepth,
     overtops: inundationDepth > 0,
     profile,
