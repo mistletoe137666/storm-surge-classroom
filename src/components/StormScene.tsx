@@ -138,7 +138,7 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
           <text x="234" y="27" fill={impactColor.muted} fontSize="6.8" fontWeight="700">沿岸影响程度</text>
           <circle cx="235" cy="39" r="2.5" fill={impactColor.foreground} />
           <text x="242" y="43" fill={impactColor.foreground} fontSize="10" fontWeight="800">{impactLevel.shortLabel}</text>
-          <text x="278" y="43" fill={impactColor.muted} fontSize="6.8" fontWeight="700">{impactLevel.score.total}/{impactLevel.score.max}分{result.overtops ? " · 越堤" : ""}</text>
+          <text x="278" y="43" fill={impactColor.muted} fontSize="6.8" fontWeight="700">{result.overtops ? "已越堤" : "未越堤"}</text>
         </g>}
 
         <g className="seawall"><rect x={profile.wallX} y={profile.wallTop} width="7" height={260 - profile.wallTop} fill="#526977" /><rect x={profile.wallX - 2} y={profile.wallTop - 3} width="11" height="4" rx="1.5" fill="#304958" /><line x1={profile.wallX - 4} y1={profile.wallTop - 8} x2={profile.wallX + 12} y2={profile.wallTop - 8} stroke="#ffcc78" strokeDasharray="2 2" strokeWidth="1" /><text x={profile.wallX - 5} y={profile.wallTop - 12} fill="#ffe6b0" fontSize="8" fontWeight="700" textAnchor="end">海堤</text></g>
