@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react"
-import { getImpactLevel, getWaterRiseProgress, hasOvertopped, type CoastCondition, type SimulationResult } from "../simulation/model"
+import { getImpactLevel, getWaterRiseProgress, hasOvertopped, WATER_DISPLAY_DROP_METERS, type CoastCondition, type SimulationResult } from "../simulation/model"
 
 type StormSceneProps = {
   coastCondition: CoastCondition
@@ -30,7 +30,7 @@ const impactColors = {
 }
 
 function waterY(level: number, profile: { wallTop: number; seawallHeight: number }) {
-  const y = profile.wallTop + (profile.seawallHeight - Math.min(level, 3)) * 30
+  const y = profile.wallTop + (profile.seawallHeight - Math.min(level, 3)) * 30 + WATER_DISPLAY_DROP_METERS * 30
   return Math.max(16, y)
 }
 
@@ -64,7 +64,7 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
   const visibleLevel = result.tideLevel + result.effectiveSurge * waterRiseProgress
   const shoreY = waterY(visibleLevel, { wallTop: profile.wallTop, seawallHeight: result.profile.seawallHeight })
   const currentOvertops = activeStage === 3 && hasOvertopped(visibleLevel, result.profile.seawallHeight)
-  const currentInundationDepth = Math.max(0, visibleLevel - result.profile.seawallHeight)
+  const currentInundationDepth = Math.max(0, visibleLevel - result.profile.seawallHeight - WATER_DISPLAY_DROP_METERS)
   const inundationProgress = Math.min(1, Math.max(0, (progress - 0.76) / 0.24))
   const overflowRatio = currentOvertops
     ? Math.min(1, Math.max(0, currentInundationDepth / 0.5)) * inundationProgress

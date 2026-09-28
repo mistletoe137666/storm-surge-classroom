@@ -3,7 +3,7 @@ import { ArrowCounterClockwise, Pause, Play, WaveTriangle } from "@phosphor-icon
 import { SimulationControls } from "./components/SimulationControls"
 import { StageTimeline } from "./components/StageTimeline"
 import { StormScene } from "./components/StormScene"
-import { calculateSimulation, defaultSettings, formatMeters, getImpactLevel, getWaterRiseProgress, hasOvertopped, type SimulationSettings } from "./simulation/model"
+import { calculateSimulation, defaultSettings, formatMeters, getImpactLevel, getWaterRiseProgress, hasOvertopped, WATER_DISPLAY_DROP_METERS, type SimulationSettings } from "./simulation/model"
 
 function getStage(progress: number) {
   if (progress < 0.2) return 0
@@ -69,7 +69,7 @@ function App() {
 
   const waterRiseProgress = getWaterRiseProgress(progress)
   const currentSeaLevelRise = result.effectiveSurge * waterRiseProgress
-  const currentWaterLevel = result.tideLevel + currentSeaLevelRise
+  const currentWaterLevel = Math.max(0, result.tideLevel + currentSeaLevelRise - WATER_DISPLAY_DROP_METERS)
   const currentOvertops = activeStage === 3 && hasOvertopped(currentWaterLevel, result.profile.seawallHeight)
   const showImpact = progress >= 1
   const impactLevel = getImpactLevel(settings, result.overtops)

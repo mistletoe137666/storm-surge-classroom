@@ -76,6 +76,7 @@ export const defaultSettings: SimulationSettings = {
 
 export const OVERTOP_CLEARANCE = 0.08
 export const IMPACT_SCORE_MAX = 9
+export const WATER_DISPLAY_DROP_METERS = 20 / 30
 
 const coastImpactPoints: Record<CoastCondition, number> = {
   steep: 0,
@@ -88,7 +89,7 @@ export function getWaterRiseProgress(progress: number): number {
 }
 
 export function hasOvertopped(waterLevel: number, seawallHeight: number): boolean {
-  return waterLevel - seawallHeight >= OVERTOP_CLEARANCE
+  return waterLevel - seawallHeight - WATER_DISPLAY_DROP_METERS >= OVERTOP_CLEARANCE
 }
 
 function getTideImpactPoints(tideLevel: number): number {
@@ -133,7 +134,7 @@ export function calculateSimulation(settings: SimulationSettings): SimulationRes
   const effectiveSurge = surge * profile.amplification
   const totalWaterLevel = settings.tideLevel + effectiveSurge
   const inundationDepth = hasOvertopped(totalWaterLevel, profile.seawallHeight)
-    ? totalWaterLevel - profile.seawallHeight
+    ? totalWaterLevel - profile.seawallHeight - WATER_DISPLAY_DROP_METERS
     : 0
 
   return {
