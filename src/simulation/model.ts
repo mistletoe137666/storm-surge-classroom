@@ -70,7 +70,7 @@ export const coastProfiles: Record<CoastCondition, CoastProfile> = {
 
 export const defaultSettings: SimulationSettings = {
   typhoonIntensity: 3,
-  tideLevel: 0.4,
+  tideLevel: 0.9,
   coastCondition: "slope",
 }
 

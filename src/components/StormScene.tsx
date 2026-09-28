@@ -11,9 +11,9 @@ type StormSceneProps = {
 }
 
 const sceneProfiles = {
-  steep: { shore: "M 177 196 L 210 187 L 228 155 L 245 132 L 360 132 L 360 260 L 177 260 Z", wallX: 246, wallTop: 127, landTop: 132, buildingsTop: 94 },
-  slope: { shore: "M 177 196 L 216 181 L 246 164 L 270 145 L 360 145 L 360 260 L 177 260 Z", wallX: 270, wallTop: 140, landTop: 145, buildingsTop: 105 },
-  lowland: { shore: "M 177 196 L 220 185 L 255 176 L 282 168 L 360 168 L 360 260 L 177 260 Z", wallX: 282, wallTop: 163, landTop: 168, buildingsTop: 125 },
+  steep: { shore: "M 177 196 L 210 187 L 228 135 L 245 112 L 360 112 L 360 260 L 177 260 Z", wallX: 246, wallTop: 107, landTop: 112, buildingsTop: 74 },
+  slope: { shore: "M 177 196 L 216 181 L 246 144 L 270 125 L 360 125 L 360 260 L 177 260 Z", wallX: 270, wallTop: 120, landTop: 125, buildingsTop: 85 },
+  lowland: { shore: "M 177 196 L 220 185 L 255 156 L 282 148 L 360 148 L 360 260 L 177 260 Z", wallX: 282, wallTop: 143, landTop: 148, buildingsTop: 105 },
 }
 
 const stageCallouts = [
@@ -122,8 +122,6 @@ export function StormScene({ coastCondition, result, progress, activeStage, typh
           <path d={makeWavePath(currentY + 31, waveAmplitude * 0.52, windSetup, profile.wallX)} stroke="#87d3d5" strokeOpacity={0.34 + windRatio * 0.08} strokeWidth={1.1 + windRatio * 0.4} />
         </g>
         <path d={profile.shore} fill="url(#land-gradient)" stroke="#a48b68" strokeWidth="1" />
-        <path d="M0 231 C45 224 98 218 145 210 C165 207 177 201 194 194" fill="none" stroke="#4d8d97" strokeOpacity="0.5" strokeWidth="2" />
-
         <line x1="8" y1={normalY} x2={profile.wallX} y2={normalY} stroke="#d6fbf5" strokeDasharray="4 4" strokeWidth="1.1" strokeOpacity="0.85" />
         <line x1="8" y1={targetY} x2={profile.wallX} y2={targetY} stroke="#ffcc78" strokeDasharray="4 3" strokeWidth="1.5" strokeOpacity="0.95" />
         <g className="water-label water-label-normal"><rect x="10" y={normalY - 14} width="61" height="15" rx="5" fill="#0a5678" fillOpacity="0.85" /><text x="17" y={normalY - 4} fill="#d6fbf5" fontSize="8" fontWeight="700">正常潮位</text></g>

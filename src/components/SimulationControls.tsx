@@ -35,7 +35,7 @@ export function SimulationControls({ settings, onSettingsChange }: SimulationCon
             <span>潮位</span>
             <strong>{settings.tideLevel.toFixed(1)}m</strong>
           </span>
-          <input type="range" min="0.1" max="1.5" step="0.1" value={settings.tideLevel} aria-label="潮位" onChange={(event) => onSettingsChange({ ...settings, tideLevel: Number(event.target.value) })} />
+          <input type="range" min="0.2" max="1.6" step="0.1" value={settings.tideLevel} aria-label="潮位" onChange={(event) => onSettingsChange({ ...settings, tideLevel: Number(event.target.value) })} />
           <span className="range-hints"><span>低潮</span><span>平均</span><span>高潮</span></span>
         </label>
 
